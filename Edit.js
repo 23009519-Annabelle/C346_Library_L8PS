@@ -24,7 +24,7 @@ const Edit = ({ navigation, route }) => {
     try {
       await AsyncStorage.setItem("movieData", JSON.stringify(data));
     } catch (error) {
-      console.error("Error saving data: ", error);
+      Alert.alert("Error", "An error occurred while saving the data.");
     }
   };
 
@@ -41,7 +41,6 @@ const Edit = ({ navigation, route }) => {
       const datastr = await AsyncStorage.getItem("movieData");
       const data = datastr ? JSON.parse(datastr) : datasource;
 
-      // Find and update the movie based on the original ISBN
       const updatedData = data[0].data.map((movie) => {
         if (movie.ISBN === ISBN) {
           return {
@@ -55,14 +54,11 @@ const Edit = ({ navigation, route }) => {
         return movie;
       });
 
-      // Save the updated data back to AsyncStorage
       data[0].data = updatedData;
       await saveData(data);
-
-      // Navigate back to the home screen
       navigation.reset({ index: 0, routes: [{ name: "Home" }] });
-    } catch (error) {
-      console.error("Error updating data: ", error);
+    } catch {
+      Alert.alert("Error", "An error occurred while updating the data.");
     }
   };
 
@@ -75,13 +71,11 @@ const Edit = ({ navigation, route }) => {
             const datastr = await AsyncStorage.getItem("movieData");
             const data = datastr ? JSON.parse(datastr) : datasource;
 
-            // Use original ISBN to delete the movie
             data[0].data = data[0].data.filter((movie) => movie.ISBN !== ISBN);
             await saveData(data);
-
             navigation.reset({ index: 0, routes: [{ name: "Home" }] });
-          } catch (error) {
-            console.error("Error deleting data: ", error);
+          } catch {
+            Alert.alert("Error", "An error occurred while deleting the data.");
           }
         },
       },
@@ -112,14 +106,12 @@ const Edit = ({ navigation, route }) => {
         value={newCopies}
         onChangeText={(text) => {
           if (/^\d*$/.test(text)) {
-            // Allow only digits
             setNewCopies(text);
           }
         }}
         placeholder="Enter new number of copies"
         keyboardType="numeric"
       />
-
       <Text style={styles.label}>Edit Image URL:</Text>
       <TextInput
         style={styles.textBox}
