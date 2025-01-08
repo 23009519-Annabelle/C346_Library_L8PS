@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   StatusBar,
-  Button,
   SectionList,
   StyleSheet,
   Text,
@@ -112,7 +111,7 @@ const Home = ({ navigation }) => {
         style={styles.opacityStyle}
         onPress={() => {
           navigation.navigate("Edit", {
-            imdbId: item.imdbId,
+            ISBN: item.ISBN,
             title: item.title,
             copies: item.copies,
             imageUrl: item.imageUrl,
@@ -122,7 +121,7 @@ const Home = ({ navigation }) => {
         <Image source={{ uri: item.imageUrl }} style={styles.posterImage} />
         <View style={styles.detailsContainer}>
           <Text style={styles.titleStyle}>{item.title}</Text>
-          <Text style={styles.textStyle}>IMDb ID: {item.imdbId}</Text>
+          <Text style={styles.textStyle}>ISBN: {item.ISBN}</Text>
           <Text style={styles.textStyle}>Copies Owned: {item.copies}</Text>
         </View>
       </TouchableOpacity>
@@ -149,7 +148,7 @@ const Home = ({ navigation }) => {
         renderSectionHeader={({ section: { title, bgcolor } }) => (
           <Text style={[styles.headerText, { backgroundColor: bgcolor }]}>{title}</Text>
         )}
-        keyExtractor={(item, index) => item.imdbId + index}
+        keyExtractor={(item, index) => item.ISBN + index}
       />
     </View>
   );

@@ -1,37 +1,57 @@
 import React, { useState } from "react";
 import { StatusBar, View, Text, TextInput, Button, Image, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { datasource } from "./Data.js";
+import { datasource } from "./Data.js"; // Assuming datasource is your initial data
 
 const Edit = ({ navigation, route }) => {
-  const { imdbId, title, copies, imageUrl } = route.params;
+  const { ISBN, title, copies, imageUrl } = route.params;
 
   const [newTitle, setNewTitle] = useState(title);
-  const [newImdbId, setNewImdbId] = useState(imdbId);
+  const [newISBN, setNewISBN] = useState(ISBN); 
   const [newCopies, setNewCopies] = useState(copies.toString());
   const [newImageUrl, setNewImageUrl] = useState(imageUrl);
 
   const saveData = async (data) => {
-    await AsyncStorage.setItem("movieData", JSON.stringify(data));
+    try {
+      await AsyncStorage.setItem("movieData", JSON.stringify(data));
+    } catch (error) {
+      console.error("Error saving data: ", error);
+    }
   };
 
   const handleSave = async () => {
-    if (!newTitle || !newImdbId || !newCopies || !newImageUrl) {
+    if (!newTitle || !newISBN || !newCopies || !newImageUrl) {
       Alert.alert("Validation Error", "All fields are required. Please fill in all the details.");
       return;
     }
 
-    const datastr = await AsyncStorage.getItem("movieData");
-    const data = datastr ? JSON.parse(datastr) : datasource;
+    try {
+      const datastr = await AsyncStorage.getItem("movieData");
+      const data = datastr ? JSON.parse(datastr) : datasource;
 
-    const updatedData = data[0].data.map((movie) =>
-      movie.imdbId === newImdbId
-        ? { ...movie, title: newTitle, copies: parseInt(newCopies), imageUrl: newImageUrl }
-        : movie
-    );
-    data[0].data = updatedData;
-    await saveData(data);
-    navigation.reset({ index: 0, routes: [{ name: "Home" }] });
+      // Find and update the movie based on the original ISBN
+      const updatedData = data[0].data.map((movie) => {
+        if (movie.ISBN === ISBN) {
+          return {
+            ...movie,
+            title: newTitle,
+            ISBN: newISBN,
+            copies: parseInt(newCopies),
+            imageUrl: newImageUrl,
+          };
+        }
+        return movie;
+      });
+
+      // Save the updated data back to AsyncStorage
+      data[0].data = updatedData;
+      await saveData(data);
+
+      // Navigate back to the home screen
+      navigation.reset({ index: 0, routes: [{ name: "Home" }] });
+    } catch (error) {
+      console.error("Error updating data: ", error);
+    }
   };
 
   const handleDelete = async () => {
@@ -39,12 +59,18 @@ const Edit = ({ navigation, route }) => {
       {
         text: "Yes",
         onPress: async () => {
-          const datastr = await AsyncStorage.getItem("movieData");
-          const data = datastr ? JSON.parse(datastr) : datasource;
+          try {
+            const datastr = await AsyncStorage.getItem("movieData");
+            const data = datastr ? JSON.parse(datastr) : datasource;
 
-          data[0].data = data[0].data.filter((movie) => movie.imdbId !== newImdbId);
-          await saveData(data);
-          navigation.reset({ index: 0, routes: [{ name: "Home" }] });
+            // Use original ISBN to delete the movie
+            data[0].data = data[0].data.filter((movie) => movie.ISBN !== ISBN);
+            await saveData(data);
+
+            navigation.reset({ index: 0, routes: [{ name: "Home" }] });
+          } catch (error) {
+            console.error("Error deleting data: ", error);
+          }
         },
       },
       { text: "No" },
@@ -61,12 +87,12 @@ const Edit = ({ navigation, route }) => {
         onChangeText={setNewTitle}
         placeholder="Enter new title"
       />
-      <Text style={styles.label}>Edit IMDb ID:</Text>
+      <Text style={styles.label}>Edit ISBN:</Text>
       <TextInput
         style={styles.textBox}
-        value={newImdbId}
-        onChangeText={setNewImdbId}
-        placeholder="Enter new IMDb ID"
+        value={newISBN}
+        onChangeText={setNewISBN}
+        placeholder="Enter new ISBN"
       />
       <Text style={styles.label}>Edit Number of Copies:</Text>
       <TextInput

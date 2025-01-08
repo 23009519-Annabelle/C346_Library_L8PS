@@ -1,10 +1,18 @@
 import React, { useState } from "react";
-import { StatusBar, View, Button, Text, TextInput, Image, StyleSheet } from "react-native";
+import {
+  StatusBar,
+  View,
+  Button,
+  Text,
+  TextInput,
+  Image,
+  StyleSheet,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Add = ({ navigation, route }) => {
   const [title, setTitle] = useState("");
-  const [imdbId, setImdbId] = useState("");
+  const [ISBN, setISBN] = useState("");
   const [copies, setCopies] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
@@ -12,6 +20,9 @@ const Add = ({ navigation, route }) => {
     AsyncStorage.setItem("movieData", value);
     navigation.navigate("Home"); // After saving, the app navigates back to the Home screen.
   };
+
+  console.log("Copies:", copies);
+  console.log("Image URL:", imageUrl);
 
   return (
     <View style={styles.container}>
@@ -22,11 +33,11 @@ const Add = ({ navigation, route }) => {
         onChangeText={(text) => setTitle(text)}
         placeholder="Enter movie title"
       />
-      <Text style={styles.label}>IMDb ID:</Text>
+      <Text style={styles.label}>ISBN:</Text>
       <TextInput
         style={styles.textBox}
-        onChangeText={(text) => setImdbId(text)}
-        placeholder="Enter IMDb ID"
+        onChangeText={(text) => setISBN(text)}
+        placeholder="Enter ISBN"
       />
       <Text style={styles.label}>Number of Copies:</Text>
       <TextInput
@@ -44,7 +55,9 @@ const Add = ({ navigation, route }) => {
       {imageUrl ? (
         <Image source={{ uri: imageUrl }} style={styles.imagePreview} />
       ) : (
-        <Text style={styles.imagePlaceholder}>Image preview will appear here</Text>
+        <Text style={styles.imagePlaceholder}>
+          Image preview will appear here
+        </Text>
       )}
       <Button
         title="Submit"
@@ -52,8 +65,8 @@ const Add = ({ navigation, route }) => {
           let mydata = JSON.parse(route.params.datastring);
           let newMovie = {
             title: title,
-            imdbId: imdbId,
-            copies: parseInt(copies), // Ensure copies is a number
+            ISBN: ISBN,
+            copies: parseInt(copies),
             imageUrl: imageUrl,
           };
           // Add new movie to the first section's data array
