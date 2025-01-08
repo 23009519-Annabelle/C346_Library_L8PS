@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { StatusBar, View, Text, TextInput, Button, Image, StyleSheet, Alert } from "react-native";
+import {
+  StatusBar,
+  View,
+  Text,
+  TextInput,
+  Button,
+  Image,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { datasource } from "./Data.js"; // Assuming datasource is your initial data
 
@@ -7,7 +16,7 @@ const Edit = ({ navigation, route }) => {
   const { ISBN, title, copies, imageUrl } = route.params;
 
   const [newTitle, setNewTitle] = useState(title);
-  const [newISBN, setNewISBN] = useState(ISBN); 
+  const [newISBN, setNewISBN] = useState(ISBN);
   const [newCopies, setNewCopies] = useState(copies.toString());
   const [newImageUrl, setNewImageUrl] = useState(imageUrl);
 
@@ -21,7 +30,10 @@ const Edit = ({ navigation, route }) => {
 
   const handleSave = async () => {
     if (!newTitle || !newISBN || !newCopies || !newImageUrl) {
-      Alert.alert("Validation Error", "All fields are required. Please fill in all the details.");
+      Alert.alert(
+        "Validation Error",
+        "All fields are required. Please fill in all the details."
+      );
       return;
     }
 
@@ -98,10 +110,16 @@ const Edit = ({ navigation, route }) => {
       <TextInput
         style={styles.textBox}
         value={newCopies}
-        onChangeText={setNewCopies}
+        onChangeText={(text) => {
+          if (/^\d*$/.test(text)) {
+            // Allow only digits
+            setNewCopies(text);
+          }
+        }}
         placeholder="Enter new number of copies"
         keyboardType="numeric"
       />
+
       <Text style={styles.label}>Edit Image URL:</Text>
       <TextInput
         style={styles.textBox}
@@ -125,7 +143,15 @@ const Edit = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5" },
   label: { fontSize: 16, fontWeight: "bold", color: "#333", marginBottom: 10 },
-  textBox: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 12, fontSize: 16, backgroundColor: "#fff", marginBottom: 20 },
+  textBox: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: "#fff",
+    marginBottom: 20,
+  },
   imagePreview: { width: 150, height: 225, marginBottom: 20, borderRadius: 5 },
   buttonContainer: {
     flexDirection: "row",
